@@ -1,0 +1,8 @@
+{
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "semi": true,
+  "printWidth": 120,
+  "htmlWhitespaceSensitivity": "css",
+  "plugins": ["prettier-plugin-sort-members"]
+}
