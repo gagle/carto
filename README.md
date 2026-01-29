@@ -24,8 +24,6 @@ Then edit [.env.local](.env.local) and add your Carto access token:
 VITE_CARTO_API_TOKEN=your_actual_token
 ```
 
-**Map ID:** `fe4be3d5-b3f9-46cd-bf6e-d91bc69ea0b9`
-
 ### 3. Start Development Server
 
 ```bash
