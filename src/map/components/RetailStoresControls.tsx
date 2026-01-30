@@ -1,12 +1,13 @@
+import { RETAIL_STORES_LAYER_DEFAULT_CONFIG } from '@/layer';
 import { rgbaToString } from '@/utilities';
-import { Button, Slider, Tooltip, Typography } from '@mui/material';
-import React, { useState, useImperativeHandle, forwardRef } from 'react';
+import { Button, Popover, Slider, Tooltip, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { RgbaColorPicker } from 'react-colorful';
 import type { RgbaColor } from 'react-colorful';
 import styled from 'styled-components';
-import { RETAIL_STORES_DEFAULT_CONFIG } from './retail-stores-defaults';
 
 const ControlGroup = styled.div`
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 `;
 
 const LayerSection = styled.div`
@@ -46,6 +47,15 @@ const ColorButton = styled(Button)<{ $color: string }>`
   }
 `;
 
+const ColorPickerWrapper = styled.div`
+  padding: 16px;
+
+  .react-colorful {
+    width: 200px;
+    height: 200px;
+  }
+`;
+
 const HorizontalColorGroup = styled.div`
   display: flex;
   gap: 16px;
@@ -75,87 +85,94 @@ export interface RetailStoresConfig {
   strokeColor: RgbaColor;
   strokeWeight: number;
   pointRadius: number;
-  startColor: RgbaColor;
-  endColor: RgbaColor;
-  steps: number;
-  revenueRange: number[];
-}
-
-export interface RetailStoresControlsRef {
-  getStrokeColor: () => RgbaColor;
-  setStrokeColor: (color: RgbaColor) => void;
-  getStartColor: () => RgbaColor;
-  setStartColor: (color: RgbaColor) => void;
-  getEndColor: () => RgbaColor;
-  setEndColor: (color: RgbaColor) => void;
+  fillFromColor: RgbaColor;
+  fillToColor: RgbaColor;
+  fillSteps: number;
+  revenueRange: [number, number];
 }
 
 interface RetailStoresControlsProps {
   onChange: (config: RetailStoresConfig) => void;
-  onColorPickerOpen: (event: React.MouseEvent<HTMLElement>, pickerId: string) => void;
 }
 
-export const RetailStoresControls = forwardRef<RetailStoresControlsRef, RetailStoresControlsProps>(
-  ({ onChange, onColorPickerOpen }, ref) => {
-  const [strokeColor, setStrokeColor] = useState<RgbaColor>(RETAIL_STORES_DEFAULT_CONFIG.strokeColor);
-  const [strokeWeight, setStrokeWeight] = useState(RETAIL_STORES_DEFAULT_CONFIG.strokeWeight);
-  const [pointRadius, setPointRadius] = useState(RETAIL_STORES_DEFAULT_CONFIG.pointRadius);
-  const [startColor, setStartColor] = useState<RgbaColor>(RETAIL_STORES_DEFAULT_CONFIG.startColor);
-  const [endColor, setEndColor] = useState<RgbaColor>(RETAIL_STORES_DEFAULT_CONFIG.endColor);
-  const [steps, setSteps] = useState(RETAIL_STORES_DEFAULT_CONFIG.steps);
-  const [revenueRange, setRevenueRange] = useState<number[]>(RETAIL_STORES_DEFAULT_CONFIG.revenueRange);
+export function RetailStoresControls({ onChange }: RetailStoresControlsProps) {
+  const [colorPickerAnchor, setColorPickerAnchor] = useState<HTMLElement | null>(null);
+  const [activeColorPicker, setActiveColorPicker] = useState<string | null>(null);
+
+  const [strokeColor, setStrokeColor] = useState<RgbaColor>(RETAIL_STORES_LAYER_DEFAULT_CONFIG.strokeColor);
+  const [strokeWeight, setStrokeWeight] = useState(RETAIL_STORES_LAYER_DEFAULT_CONFIG.strokeWeight);
+  const [pointRadius, setPointRadius] = useState(RETAIL_STORES_LAYER_DEFAULT_CONFIG.pointRadius);
+  const [fillFromColor, setStartColor] = useState<RgbaColor>(RETAIL_STORES_LAYER_DEFAULT_CONFIG.fillFromColor);
+  const [fillToColor, setEndColor] = useState<RgbaColor>(RETAIL_STORES_LAYER_DEFAULT_CONFIG.fillToColor);
+  const [fillSteps, setSteps] = useState(RETAIL_STORES_LAYER_DEFAULT_CONFIG.fillSteps);
+  const [revenueRange, setRevenueRange] = useState<[number, number]>(RETAIL_STORES_LAYER_DEFAULT_CONFIG.revenueRange);
 
   const handleChange = (updates: Partial<RetailStoresConfig>) => {
-    const newConfig = {
+    onChange({
       strokeColor,
       strokeWeight,
       pointRadius,
-      startColor,
-      endColor,
-      steps,
+      fillFromColor,
+      fillToColor,
+      fillSteps,
       revenueRange,
       ...updates,
-    };
-    onChange(newConfig);
+    });
   };
 
   const handleStrokeWeightChange = (value: number) => {
-    setStrokeWeight(value);
-    handleChange({ strokeWeight: value });
+    if (typeof value === 'number') {
+      setStrokeWeight(value);
+      handleChange({ strokeWeight: value });
+    }
   };
 
   const handlePointRadiusChange = (value: number) => {
-    setPointRadius(value);
-    handleChange({ pointRadius: value });
+    if (typeof value === 'number') {
+      setPointRadius(value);
+      handleChange({ pointRadius: value });
+    }
   };
 
   const handleStepsChange = (value: number) => {
-    setSteps(value);
-    handleChange({ steps: value });
+    if (typeof value === 'number') {
+      setSteps(value);
+      handleChange({ fillSteps: value });
+    }
   };
 
   const handleRevenueRangeChange = (value: number[]) => {
-    setRevenueRange(value);
-    handleChange({ revenueRange: value });
+    if (Array.isArray(value) && value.length === 2) {
+      const range: [number, number] = [value[0], value[1]];
+      setRevenueRange(range);
+      handleChange({ revenueRange: range });
+    }
   };
 
-  useImperativeHandle(ref, () => ({
-    getStrokeColor: () => strokeColor,
-    setStrokeColor: (color: RgbaColor) => {
-      setStrokeColor(color);
-      handleChange({ strokeColor: color });
-    },
-    getStartColor: () => startColor,
-    setStartColor: (color: RgbaColor) => {
-      setStartColor(color);
-      handleChange({ startColor: color });
-    },
-    getEndColor: () => endColor,
-    setEndColor: (color: RgbaColor) => {
-      setEndColor(color);
-      handleChange({ endColor: color });
-    },
-  }));
+  const handleStrokeColorChange = (color: RgbaColor) => {
+    setStrokeColor(color);
+    handleChange({ strokeColor: color });
+  };
+
+  const handleStartColorChange = (color: RgbaColor) => {
+    setStartColor(color);
+    handleChange({ fillFromColor: color });
+  };
+
+  const handleEndColorChange = (color: RgbaColor) => {
+    setEndColor(color);
+    handleChange({ fillToColor: color });
+  };
+
+  const handleColorButtonClick = (event: React.MouseEvent<HTMLElement>, pickerId: string) => {
+    setColorPickerAnchor(event.currentTarget);
+    setActiveColorPicker(pickerId);
+  };
+
+  const handleColorPickerClose = () => {
+    setColorPickerAnchor(null);
+    setActiveColorPicker(null);
+  };
 
   return (
     <LayerSection>
@@ -164,13 +181,13 @@ export const RetailStoresControls = forwardRef<RetailStoresControlsRef, RetailSt
       </Tooltip>
       <ControlGroup>
         <ControlLabel gutterBottom>Stroke color</ControlLabel>
-        <ColorButton $color={rgbaToString(strokeColor)} onClick={(e) => onColorPickerOpen(e, 'retailLine')} />
+        <ColorButton $color={rgbaToString(strokeColor)} onClick={(e) => handleColorButtonClick(e, 'strokeColor')} />
       </ControlGroup>
       <ControlGroup>
         <ControlLabel gutterBottom>Stroke weight</ControlLabel>
         <Slider
           value={strokeWeight}
-          onChange={(_, value) => handleStrokeWeightChange(value as number)}
+          onChange={(_, value) => handleStrokeWeightChange(value)}
           min={0}
           max={10}
           step={0.5}
@@ -181,7 +198,7 @@ export const RetailStoresControls = forwardRef<RetailStoresControlsRef, RetailSt
         <ControlLabel gutterBottom>Point radius</ControlLabel>
         <Slider
           value={pointRadius}
-          onChange={(_, value) => handlePointRadiusChange(value as number)}
+          onChange={(_, value) => handlePointRadiusChange(value)}
           min={0}
           max={20}
           step={0.5}
@@ -193,19 +210,22 @@ export const RetailStoresControls = forwardRef<RetailStoresControlsRef, RetailSt
         <HorizontalColorGroup>
           <ColorPickerItem>
             <ColorLabel>From</ColorLabel>
-            <ColorButton $color={rgbaToString(startColor)} onClick={(e) => onColorPickerOpen(e, 'retailStart')} />
+            <ColorButton
+              $color={rgbaToString(fillFromColor)}
+              onClick={(e) => handleColorButtonClick(e, 'fillFromColor')}
+            />
           </ColorPickerItem>
           <ColorPickerItem>
             <ColorLabel>To</ColorLabel>
-            <ColorButton $color={rgbaToString(endColor)} onClick={(e) => onColorPickerOpen(e, 'retailEnd')} />
+            <ColorButton $color={rgbaToString(fillToColor)} onClick={(e) => handleColorButtonClick(e, 'fillToColor')} />
           </ColorPickerItem>
         </HorizontalColorGroup>
       </ControlGroup>
       <ControlGroup>
-        <ControlLabel gutterBottom>Steps</ControlLabel>
+        <ControlLabel gutterBottom>Gradient steps</ControlLabel>
         <Slider
-          value={steps}
-          onChange={(_, value) => handleStepsChange(value as number)}
+          value={fillSteps}
+          onChange={(_, value) => handleStepsChange(value)}
           min={2}
           max={10}
           step={1}
@@ -216,13 +236,35 @@ export const RetailStoresControls = forwardRef<RetailStoresControlsRef, RetailSt
         <ControlLabel gutterBottom>Revenue range</ControlLabel>
         <Slider
           value={revenueRange}
-          onChange={(_, value) => handleRevenueRangeChange(value as number[])}
+          onChange={(_, value) => handleRevenueRangeChange(value)}
           min={0}
           max={5000000}
           step={100000}
           valueLabelDisplay="auto"
         />
       </ControlGroup>
+
+      <Popover
+        open={!!colorPickerAnchor}
+        anchorEl={colorPickerAnchor}
+        onClose={handleColorPickerClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+      >
+        <ColorPickerWrapper>
+          {activeColorPicker === 'strokeColor' && (
+            <RgbaColorPicker color={strokeColor} onChange={handleStrokeColorChange} />
+          )}
+          {activeColorPicker === 'fillFromColor' && (
+            <RgbaColorPicker color={fillFromColor} onChange={handleStartColorChange} />
+          )}
+          {activeColorPicker === 'fillToColor' && (
+            <RgbaColorPicker color={fillToColor} onChange={handleEndColorChange} />
+          )}
+        </ColorPickerWrapper>
+      </Popover>
     </LayerSection>
   );
-});
+}

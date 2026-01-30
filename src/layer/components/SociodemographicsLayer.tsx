@@ -5,7 +5,7 @@ import type { PickingInfo } from '@deck.gl/core';
 import type { Feature, Geometry } from 'geojson';
 import type { RgbaColor } from 'react-colorful';
 
-interface SociodemographicsLayerProps {
+export interface SociodemographicsLayerProps {
   getLineColor: () => RgbaColor;
   getStrokeWeight: () => number;
   getColorPalette: () => string[];

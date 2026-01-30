@@ -1,7 +1,7 @@
 import type { SociodemographicsUsaProperties } from '@/data-source';
 import type { PickingInfo } from '@deck.gl/core';
 
-export function getTooltipSociodemographicsData(
+export function getTooltipLayerSociodemographicsData(
   hoverInfo: PickingInfo<{ properties: SociodemographicsUsaProperties }> | undefined
 ): { x: number; y: number; items: Array<[string, string]> } | null {
   if (!hoverInfo || !hoverInfo.object) {

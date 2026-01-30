@@ -5,7 +5,7 @@ import type { PickingInfo } from '@deck.gl/core';
 import type { Feature, Geometry } from 'geojson';
 import type { RgbaColor } from 'react-colorful';
 
-interface RetailStoresLayerProps {
+export interface RetailStoresLayerProps {
   getLineColor: () => RgbaColor;
   getStrokeWeight: () => number;
   getPointRadius: () => number;

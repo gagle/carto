@@ -31,7 +31,7 @@ const TooltipValue = styled.span`
   color: #000000;
 `;
 
-interface LayerTooltipProps {
+export interface LayerTooltipProps {
   x: number;
   y: number;
   items: Array<[string, string]>;

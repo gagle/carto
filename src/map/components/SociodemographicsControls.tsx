@@ -1,9 +1,10 @@
+import { SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG } from '@/layer';
 import { rgbaToString } from '@/utilities';
-import { Button, Slider, Tooltip, Typography } from '@mui/material';
-import React, { useState, useImperativeHandle } from 'react';
+import { Button, Popover, Slider, Tooltip, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { RgbaColorPicker } from 'react-colorful';
 import type { RgbaColor } from 'react-colorful';
 import styled from 'styled-components';
-import { SOCIODEMOGRAPHICS_DEFAULT_CONFIG } from './sociodemographics-defaults';
 
 const ControlGroup = styled.div`
   margin-bottom: 24px;
@@ -46,6 +47,15 @@ const ColorButton = styled(Button)<{ $color: string }>`
   }
 `;
 
+const ColorPickerWrapper = styled.div`
+  padding: 16px;
+
+  .react-colorful {
+    width: 200px;
+    height: 200px;
+  }
+`;
+
 const HorizontalColorGroup = styled.div`
   display: flex;
   gap: 16px;
@@ -74,80 +84,87 @@ const ControlLabel = styled(Typography)`
 export interface SociodemographicsConfig {
   strokeColor: RgbaColor;
   strokeWeight: number;
-  startColor: RgbaColor;
-  endColor: RgbaColor;
-  steps: number;
-  populationRange: number[];
-}
-
-export interface SociodemographicsControlsRef {
-  getStrokeColor: () => RgbaColor;
-  setStrokeColor: (color: RgbaColor) => void;
-  getStartColor: () => RgbaColor;
-  setStartColor: (color: RgbaColor) => void;
-  getEndColor: () => RgbaColor;
-  setEndColor: (color: RgbaColor) => void;
+  fillFromColor: RgbaColor;
+  fillToColor: RgbaColor;
+  fillSteps: number;
+  populationRange: [number, number];
 }
 
 interface SociodemographicsControlsProps {
   onChange: (config: SociodemographicsConfig) => void;
-  onColorPickerOpen: (event: React.MouseEvent<HTMLElement>, pickerId: string) => void;
 }
 
-export const SociodemographicsControls = React.forwardRef<SociodemographicsControlsRef, SociodemographicsControlsProps>(
-  ({ onChange, onColorPickerOpen }, ref) => {
-  const [strokeColor, setStrokeColor] = useState<RgbaColor>(SOCIODEMOGRAPHICS_DEFAULT_CONFIG.strokeColor);
-  const [strokeWeight, setStrokeWeight] = useState(SOCIODEMOGRAPHICS_DEFAULT_CONFIG.strokeWeight);
-  const [startColor, setStartColor] = useState<RgbaColor>(SOCIODEMOGRAPHICS_DEFAULT_CONFIG.startColor);
-  const [endColor, setEndColor] = useState<RgbaColor>(SOCIODEMOGRAPHICS_DEFAULT_CONFIG.endColor);
-  const [steps, setSteps] = useState(SOCIODEMOGRAPHICS_DEFAULT_CONFIG.steps);
-  const [populationRange, setPopulationRange] = useState<number[]>(SOCIODEMOGRAPHICS_DEFAULT_CONFIG.populationRange);
+export function SociodemographicsControls({ onChange }: SociodemographicsControlsProps) {
+  const [colorPickerAnchor, setColorPickerAnchor] = useState<HTMLElement | null>(null);
+  const [activeColorPicker, setActiveColorPicker] = useState<string | null>(null);
+
+  const [strokeColor, setStrokeColor] = useState<RgbaColor>(SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG.strokeColor);
+  const [strokeWeight, setStrokeWeight] = useState(SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG.strokeWeight);
+  const [fillFromColor, setStartColor] = useState<RgbaColor>(SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG.fillFromColor);
+  const [fillToColor, setEndColor] = useState<RgbaColor>(SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG.fillToColor);
+  const [fillSteps, setSteps] = useState(SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG.fillSteps);
+  const [populationRange, setPopulationRange] = useState<[number, number]>(
+    SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG.populationRange
+  );
 
   const handleChange = (updates: Partial<SociodemographicsConfig>) => {
-    const newConfig = {
+    onChange({
       strokeColor,
       strokeWeight,
-      startColor,
-      endColor,
-      steps,
+      fillFromColor,
+      fillToColor,
+      fillSteps,
       populationRange,
       ...updates,
-    };
-    onChange(newConfig);
+    });
   };
 
   const handleStrokeWeightChange = (value: number) => {
-    setStrokeWeight(value);
-    handleChange({ strokeWeight: value });
+    if (typeof value === 'number') {
+      setStrokeWeight(value);
+      handleChange({ strokeWeight: value });
+    }
   };
 
   const handleStepsChange = (value: number) => {
-    setSteps(value);
-    handleChange({ steps: value });
+    if (typeof value === 'number') {
+      setSteps(value);
+      handleChange({ fillSteps: value });
+    }
   };
 
   const handlePopulationRangeChange = (value: number[]) => {
-    setPopulationRange(value);
-    handleChange({ populationRange: value });
+    if (Array.isArray(value) && value.length === 2) {
+      const range: [number, number] = [value[0], value[1]];
+      setPopulationRange(range);
+      handleChange({ populationRange: range });
+    }
   };
 
-  useImperativeHandle(ref, () => ({
-    getStrokeColor: () => strokeColor,
-    setStrokeColor: (color: RgbaColor) => {
-      setStrokeColor(color);
-      handleChange({ strokeColor: color });
-    },
-    getStartColor: () => startColor,
-    setStartColor: (color: RgbaColor) => {
-      setStartColor(color);
-      handleChange({ startColor: color });
-    },
-    getEndColor: () => endColor,
-    setEndColor: (color: RgbaColor) => {
-      setEndColor(color);
-      handleChange({ endColor: color });
-    },
-  }));
+  const handleStrokeColorChange = (color: RgbaColor) => {
+    setStrokeColor(color);
+    handleChange({ strokeColor: color });
+  };
+
+  const handleStartColorChange = (color: RgbaColor) => {
+    setStartColor(color);
+    handleChange({ fillFromColor: color });
+  };
+
+  const handleEndColorChange = (color: RgbaColor) => {
+    setEndColor(color);
+    handleChange({ fillToColor: color });
+  };
+
+  const handleColorButtonClick = (event: React.MouseEvent<HTMLElement>, pickerId: string) => {
+    setColorPickerAnchor(event.currentTarget);
+    setActiveColorPicker(pickerId);
+  };
+
+  const handleColorPickerClose = () => {
+    setColorPickerAnchor(null);
+    setActiveColorPicker(null);
+  };
 
   return (
     <LayerSection>
@@ -156,13 +173,13 @@ export const SociodemographicsControls = React.forwardRef<SociodemographicsContr
       </Tooltip>
       <ControlGroup>
         <ControlLabel gutterBottom>Stroke color</ControlLabel>
-        <ColorButton $color={rgbaToString(strokeColor)} onClick={(e) => onColorPickerOpen(e, 'demoLine')} />
+        <ColorButton $color={rgbaToString(strokeColor)} onClick={(e) => handleColorButtonClick(e, 'strokeColor')} />
       </ControlGroup>
       <ControlGroup>
         <ControlLabel gutterBottom>Stroke weight</ControlLabel>
         <Slider
           value={strokeWeight}
-          onChange={(_, value) => handleStrokeWeightChange(value as number)}
+          onChange={(_, value) => handleStrokeWeightChange(value)}
           min={0}
           max={10}
           step={0.5}
@@ -174,19 +191,22 @@ export const SociodemographicsControls = React.forwardRef<SociodemographicsContr
         <HorizontalColorGroup>
           <ColorPickerItem>
             <ColorLabel>From</ColorLabel>
-            <ColorButton $color={rgbaToString(startColor)} onClick={(e) => onColorPickerOpen(e, 'demoStart')} />
+            <ColorButton
+              $color={rgbaToString(fillFromColor)}
+              onClick={(e) => handleColorButtonClick(e, 'fillFromColor')}
+            />
           </ColorPickerItem>
           <ColorPickerItem>
             <ColorLabel>To</ColorLabel>
-            <ColorButton $color={rgbaToString(endColor)} onClick={(e) => onColorPickerOpen(e, 'demoEnd')} />
+            <ColorButton $color={rgbaToString(fillToColor)} onClick={(e) => handleColorButtonClick(e, 'fillToColor')} />
           </ColorPickerItem>
         </HorizontalColorGroup>
       </ControlGroup>
       <ControlGroup>
-        <ControlLabel gutterBottom>Steps</ControlLabel>
+        <ControlLabel gutterBottom>Gradient steps</ControlLabel>
         <Slider
-          value={steps}
-          onChange={(_, value) => handleStepsChange(value as number)}
+          value={fillSteps}
+          onChange={(_, value) => handleStepsChange(value)}
           min={2}
           max={10}
           step={1}
@@ -197,13 +217,35 @@ export const SociodemographicsControls = React.forwardRef<SociodemographicsContr
         <ControlLabel gutterBottom>Population range</ControlLabel>
         <Slider
           value={populationRange}
-          onChange={(_, value) => handlePopulationRangeChange(value as number[])}
+          onChange={(_, value) => handlePopulationRangeChange(value)}
           min={0}
           max={10000}
           step={100}
           valueLabelDisplay="auto"
         />
       </ControlGroup>
+
+      <Popover
+        open={!!colorPickerAnchor}
+        anchorEl={colorPickerAnchor}
+        onClose={handleColorPickerClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+      >
+        <ColorPickerWrapper>
+          {activeColorPicker === 'strokeColor' && (
+            <RgbaColorPicker color={strokeColor} onChange={handleStrokeColorChange} />
+          )}
+          {activeColorPicker === 'fillFromColor' && (
+            <RgbaColorPicker color={fillFromColor} onChange={handleStartColorChange} />
+          )}
+          {activeColorPicker === 'fillToColor' && (
+            <RgbaColorPicker color={fillToColor} onChange={handleEndColorChange} />
+          )}
+        </ColorPickerWrapper>
+      </Popover>
     </LayerSection>
   );
-});
+}
