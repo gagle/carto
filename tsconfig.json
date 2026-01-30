@@ -21,8 +21,12 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": "./",
     "paths": {
-      "@/environment": ["./src/environment"],
+      "@/cdk/layer": ["./src/cdk/layer"],
       "@/data-source": ["./src/data-source"],
+      "@/environment": ["./src/environment"],
+      "@/layer": ["./src/layer"],
+      "@/map": ["./src/map"],
+      "@/utilities": ["./src/utilities"],
     }
   },
   "include": ["src"]
