@@ -1,5 +1,5 @@
 import chroma from 'chroma-js';
-import type { RetailStoresConfig } from '../../map/components/RetailStoresControls';
+import type { RetailStoresConfig } from '../interfaces/retail-stores-config';
 import { chromaToColorPickerRgba } from '@/utilities';
 
 export const RETAIL_STORES_LAYER_DEFAULT_CONFIG: RetailStoresConfig = {

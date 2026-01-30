@@ -1,20 +1,16 @@
-import { type RetailStoresProperties, type SociodemographicsUsaProperties } from '@/data-source';
-import { LayerTooltip } from '@/cdk/layer';
 import {
-  createRetailStoresLayer,
-  createSociodemographicsLayer,
-  getTooltipLayerSociodemographicsData,
-  getTooltipLayerRetailStoresData,
   RETAIL_STORES_LAYER_DEFAULT_CONFIG,
   SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG,
+  type RetailStoresConfig,
+  type SociodemographicsConfig,
 } from '@/layer';
-import { RetailStoresControls, type RetailStoresConfig } from './RetailStoresControls';
-import { SociodemographicsControls, type SociodemographicsConfig } from './SociodemographicsControls';
-import { generateColors } from '@/utilities';
+import { RetailStoresControls } from './RetailStoresControls';
+import { SociodemographicsControls } from './SociodemographicsControls';
+import { useRetailStoresLayer } from './useRetailStoresLayer';
+import { useSociodemographicsLayer } from './useSociodemographicsLayer';
 import { BASEMAP } from '@deck.gl/carto';
-import { type MapViewState, type PickingInfo } from '@deck.gl/core';
+import { type MapViewState } from '@deck.gl/core';
 import { DeckGL } from '@deck.gl/react';
-import chroma from 'chroma-js';
 import { useState } from 'react';
 import { Map as MapGL } from 'react-map-gl/maplibre';
 import styled from 'styled-components';
@@ -38,47 +34,10 @@ export function Map() {
     SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG
   );
 
-  const [retailStoresHoverInfo, setRetailStoresHoverInfo] = useState<PickingInfo<{ properties: RetailStoresProperties }>>();
-  const [sociodemographicsHoverInfo, setSociodemographicsHoverInfo] = useState<
-    PickingInfo<{ properties: SociodemographicsUsaProperties }>
-  >();
-  const retailStoresColorPalette = generateColors(
-    chroma([retailStoresConfig.fillFromColor.r, retailStoresConfig.fillFromColor.g, retailStoresConfig.fillFromColor.b])
-      .alpha(retailStoresConfig.fillFromColor.a)
-      .hex(),
-    chroma([retailStoresConfig.fillToColor.r, retailStoresConfig.fillToColor.g, retailStoresConfig.fillToColor.b])
-      .alpha(retailStoresConfig.fillToColor.a)
-      .hex(),
-    retailStoresConfig.fillSteps
-  );
+  const retailStoresLayer = useRetailStoresLayer(retailStoresConfig);
+  const sociodemographicsLayer = useSociodemographicsLayer(sociodemographicsConfig);
 
-  const sociodemographicsColorPalette = generateColors(
-    chroma([sociodemographicsConfig.fillFromColor.r, sociodemographicsConfig.fillFromColor.g, sociodemographicsConfig.fillFromColor.b])
-      .alpha(sociodemographicsConfig.fillFromColor.a)
-      .hex(),
-    chroma([sociodemographicsConfig.fillToColor.r, sociodemographicsConfig.fillToColor.g, sociodemographicsConfig.fillToColor.b])
-      .alpha(sociodemographicsConfig.fillToColor.a)
-      .hex(),
-    sociodemographicsConfig.fillSteps
-  );
-
-  const layers = [
-    createSociodemographicsLayer({
-      getLineColor: () => sociodemographicsConfig.strokeColor,
-      getStrokeWeight: () => sociodemographicsConfig.strokeWeight,
-      getColorPalette: () => sociodemographicsColorPalette,
-      getPopulationRange: () => sociodemographicsConfig.populationRange,
-      onHover: setSociodemographicsHoverInfo,
-    }),
-    createRetailStoresLayer({
-      getLineColor: () => retailStoresConfig.strokeColor,
-      getStrokeWeight: () => retailStoresConfig.strokeWeight,
-      getPointRadius: () => retailStoresConfig.pointRadius,
-      getColorPalette: () => retailStoresColorPalette,
-      getRevenueRange: () => retailStoresConfig.revenueRange,
-      onHover: setRetailStoresHoverInfo,
-    }),
-  ];
+  const layers = [sociodemographicsLayer.layer, retailStoresLayer.layer];
 
   const viewState: MapViewState = {
     latitude: 39.8097343,
@@ -87,9 +46,6 @@ export function Map() {
     bearing: 0,
     pitch: 0,
   };
-
-  const tooltipRetailStoresData = getTooltipLayerRetailStoresData(retailStoresHoverInfo);
-  const tooltipSociodemographicsData = getTooltipLayerSociodemographicsData(sociodemographicsHoverInfo);
 
   return (
     <Container>
@@ -104,16 +60,8 @@ export function Map() {
         style={{ position: 'relative', flex: '1' }}
       >
         <MapGL mapStyle={BASEMAP.POSITRON} />
-        {tooltipRetailStoresData && (
-          <LayerTooltip x={tooltipRetailStoresData.x} y={tooltipRetailStoresData.y} items={tooltipRetailStoresData.items} />
-        )}
-        {tooltipSociodemographicsData && (
-          <LayerTooltip
-            x={tooltipSociodemographicsData.x}
-            y={tooltipSociodemographicsData.y}
-            items={tooltipSociodemographicsData.items}
-          />
-        )}
+        {retailStoresLayer.tooltip}
+        {sociodemographicsLayer.tooltip}
       </DeckGL>
     </Container>
   );

@@ -1,4 +1,4 @@
-import { RETAIL_STORES_LAYER_DEFAULT_CONFIG } from '@/layer';
+import { RETAIL_STORES_LAYER_DEFAULT_CONFIG, type RetailStoresConfig } from '@/layer';
 import { rgbaToString } from '@/utilities';
 import { Button, Popover, Slider, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
@@ -80,16 +80,6 @@ const ControlLabel = styled(Typography)`
   font-size: 14px;
   font-weight: bold;
 `;
-
-export interface RetailStoresConfig {
-  strokeColor: RgbaColor;
-  strokeWeight: number;
-  pointRadius: number;
-  fillFromColor: RgbaColor;
-  fillToColor: RgbaColor;
-  fillSteps: number;
-  revenueRange: [number, number];
-}
 
 interface RetailStoresControlsProps {
   onChange: (config: RetailStoresConfig) => void;

@@ -1,4 +1,4 @@
-import { SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG } from '@/layer';
+import { SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG, type SociodemographicsConfig } from '@/layer';
 import { rgbaToString } from '@/utilities';
 import { Button, Popover, Slider, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
@@ -80,15 +80,6 @@ const ControlLabel = styled(Typography)`
   font-size: 14px;
   font-weight: bold;
 `;
-
-export interface SociodemographicsConfig {
-  strokeColor: RgbaColor;
-  strokeWeight: number;
-  fillFromColor: RgbaColor;
-  fillToColor: RgbaColor;
-  fillSteps: number;
-  populationRange: [number, number];
-}
 
 interface SociodemographicsControlsProps {
   onChange: (config: SociodemographicsConfig) => void;

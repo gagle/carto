@@ -1,5 +1,5 @@
 import chroma from 'chroma-js';
-import type { SociodemographicsConfig } from '../../map/components/SociodemographicsControls';
+import type { SociodemographicsConfig } from '../interfaces/sociodemographics-config';
 import { chromaToColorPickerRgba } from '@/utilities';
 
 export const SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG: SociodemographicsConfig = {
