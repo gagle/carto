@@ -1,5 +1,5 @@
 import { getSociodemographicUsaSource, type SociodemographicsUsaProperties } from '@/data-source';
-import type { SociodemographicsConfig } from '../interfaces/sociodemographics-config';
+import type { SociodemographicsConfig } from '../constants/sociodemographicsLayerDefaultConfig';
 import { generateColors, getGradientColor } from '@/utilities';
 import { VectorTileLayer } from '@deck.gl/carto';
 import type { PickingInfo } from '@deck.gl/core';

@@ -1,5 +1,5 @@
 import { getRetailStoresSource, type RetailStoresProperties } from '@/data-source';
-import type { RetailStoresConfig } from '../interfaces/retail-stores-config';
+import type { RetailStoresLayerDefaultConfig } from '../constants/retailStoresLayerDefaultConfig';
 import { generateColors, getGradientColor } from '@/utilities';
 import { VectorTileLayer } from '@deck.gl/carto';
 import type { PickingInfo } from '@deck.gl/core';
@@ -7,7 +7,7 @@ import chroma from 'chroma-js';
 import type { Feature, Geometry } from 'geojson';
 
 export interface RetailStoresLayerProps {
-  config: RetailStoresConfig;
+  config: RetailStoresLayerDefaultConfig;
   onHover: (info: PickingInfo<{ properties: RetailStoresProperties }>) => void;
 }
 

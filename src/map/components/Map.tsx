@@ -1,7 +1,7 @@
 import {
   RETAIL_STORES_LAYER_DEFAULT_CONFIG,
   SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG,
-  type RetailStoresConfig,
+  type RetailStoresLayerDefaultConfig,
   type SociodemographicsConfig,
 } from '@/layer';
 import { RetailStoresControls } from './RetailStoresControls';
@@ -29,7 +29,9 @@ const Sidebar = styled.div`
 `;
 
 export function Map() {
-  const [retailStoresConfig, setRetailStoresConfig] = useState<RetailStoresConfig>(RETAIL_STORES_LAYER_DEFAULT_CONFIG);
+  const [retailStoresConfig, setRetailStoresConfig] = useState<RetailStoresLayerDefaultConfig>(
+    RETAIL_STORES_LAYER_DEFAULT_CONFIG
+  );
   const [sociodemographicsConfig, setSociodemographicsConfig] = useState<SociodemographicsConfig>(
     SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG
   );

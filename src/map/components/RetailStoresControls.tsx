@@ -1,4 +1,4 @@
-import { RETAIL_STORES_LAYER_DEFAULT_CONFIG, type RetailStoresConfig } from '@/layer';
+import { RETAIL_STORES_LAYER_DEFAULT_CONFIG, type RetailStoresLayerDefaultConfig } from '@/layer';
 import { rgbaToString } from '@/utilities';
 import { Button, Popover, Slider, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
@@ -82,7 +82,7 @@ const ControlLabel = styled(Typography)`
 `;
 
 interface RetailStoresControlsProps {
-  onChange: (config: RetailStoresConfig) => void;
+  onChange: (config: RetailStoresLayerDefaultConfig) => void;
 }
 
 export function RetailStoresControls({ onChange }: RetailStoresControlsProps) {
@@ -97,7 +97,7 @@ export function RetailStoresControls({ onChange }: RetailStoresControlsProps) {
   const [fillSteps, setSteps] = useState(RETAIL_STORES_LAYER_DEFAULT_CONFIG.fillSteps);
   const [revenueRange, setRevenueRange] = useState<[number, number]>(RETAIL_STORES_LAYER_DEFAULT_CONFIG.revenueRange);
 
-  const handleChange = (updates: Partial<RetailStoresConfig>) => {
+  const handleChange = (updates: Partial<RetailStoresLayerDefaultConfig>) => {
     onChange({
       strokeColor,
       strokeWeight,

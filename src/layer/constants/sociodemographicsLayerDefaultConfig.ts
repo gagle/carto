@@ -1,6 +1,15 @@
-import chroma from 'chroma-js';
-import type { SociodemographicsConfig } from '../interfaces/sociodemographics-config';
 import { chromaToColorPickerRgba } from '@/utilities';
+import chroma from 'chroma-js';
+import type { RgbaColor } from 'react-colorful';
+
+export interface SociodemographicsConfig {
+  strokeColor: RgbaColor;
+  strokeWeight: number;
+  fillFromColor: RgbaColor;
+  fillToColor: RgbaColor;
+  fillSteps: number;
+  populationRange: [number, number];
+}
 
 export const SOCIODEMOGRAPHICS_LAYER_DEFAULT_CONFIG: SociodemographicsConfig = {
   strokeColor: chromaToColorPickerRgba(chroma('#ddb27c')),
