@@ -1,9 +1,10 @@
+import type { VectorTableSourceResponse } from '@/cdk/carto';
 import { RETAIL_STORES_LAYER_DEFAULT_CONFIG, type RetailStoresLayerDefaultConfig } from '@/layer';
 import { rgbaToString } from '@/utilities';
 import { Button, Popover, Slider, Tooltip, Typography } from '@mui/material';
-import React, { useState } from 'react';
-import { RgbaColorPicker } from 'react-colorful';
+import React, { useEffect, useState } from 'react';
 import type { RgbaColor } from 'react-colorful';
+import { RgbaColorPicker } from 'react-colorful';
 import styled from 'styled-components';
 
 const ControlGroup = styled.div`
@@ -81,13 +82,22 @@ const ControlLabel = styled(Typography)`
   font-weight: bold;
 `;
 
+const CountDisplay = styled.span`
+  font-size: 12px;
+  color: #666666;
+  margin-bottom: 16px;
+  display: block;
+`;
+
 interface RetailStoresControlsProps {
   onChange: (config: RetailStoresLayerDefaultConfig) => void;
+  dataSource: Promise<VectorTableSourceResponse>;
 }
 
-export function RetailStoresControls({ onChange }: RetailStoresControlsProps) {
+export function RetailStoresControls({ onChange, dataSource }: RetailStoresControlsProps) {
   const [colorPickerAnchor, setColorPickerAnchor] = useState<HTMLElement | null>(null);
   const [activeColorPicker, setActiveColorPicker] = useState<string | null>(null);
+  const [count, setCount] = useState<number | null>(null);
 
   const [strokeColor, setStrokeColor] = useState<RgbaColor>(RETAIL_STORES_LAYER_DEFAULT_CONFIG.strokeColor);
   const [strokeWeight, setStrokeWeight] = useState(RETAIL_STORES_LAYER_DEFAULT_CONFIG.strokeWeight);
@@ -96,6 +106,18 @@ export function RetailStoresControls({ onChange }: RetailStoresControlsProps) {
   const [fillToColor, setEndColor] = useState<RgbaColor>(RETAIL_STORES_LAYER_DEFAULT_CONFIG.fillToColor);
   const [fillSteps, setSteps] = useState(RETAIL_STORES_LAYER_DEFAULT_CONFIG.fillSteps);
   const [revenueRange, setRevenueRange] = useState<[number, number]>(RETAIL_STORES_LAYER_DEFAULT_CONFIG.revenueRange);
+
+  useEffect(() => {
+    dataSource
+      .then((ds) => {
+        return ds.widgetSource.getFormula({
+          operation: 'count',
+        });
+      })
+      .then((formula) => {
+        setCount(formula.value);
+      });
+  }, [dataSource]);
 
   const handleChange = (updates: Partial<RetailStoresLayerDefaultConfig>) => {
     onChange({
@@ -169,6 +191,7 @@ export function RetailStoresControls({ onChange }: RetailStoresControlsProps) {
       <Tooltip title="retail_stores" placement="bottom">
         <SectionTitle variant="h5">retail_stores</SectionTitle>
       </Tooltip>
+      {count !== null && <CountDisplay>Count: {count.toLocaleString()}</CountDisplay>}
       <ControlGroup>
         <ControlLabel gutterBottom>Stroke color</ControlLabel>
         <ColorButton $color={rgbaToString(strokeColor)} onClick={(e) => handleColorButtonClick(e, 'strokeColor')} />

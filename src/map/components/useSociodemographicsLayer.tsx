@@ -1,4 +1,4 @@
-import { type SociodemographicsUsaProperties } from '@/data-source';
+import { getSociodemographicUsaSource, type SociodemographicsUsaProperties } from '@/data-source';
 import { LayerTooltip } from '@/cdk/layer';
 import {
   createSociodemographicsVectorTileLayer,
@@ -11,13 +11,16 @@ import { useState } from 'react';
 export function useSociodemographicsLayer(config: SociodemographicsConfig) {
   const [hoverInfo, setHoverInfo] = useState<PickingInfo<{ properties: SociodemographicsUsaProperties }>>();
 
+  const dataSource = getSociodemographicUsaSource();
+
   const layer = createSociodemographicsVectorTileLayer({
     config,
+    dataSource,
     onHover: setHoverInfo,
   });
 
   const tooltipData = getTooltipLayerSociodemographicsData(hoverInfo);
   const tooltip = tooltipData ? <LayerTooltip x={tooltipData.x} y={tooltipData.y} items={tooltipData.items} /> : null;
 
-  return { layer, tooltip };
+  return { layer, tooltip, dataSource };
 }

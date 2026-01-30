@@ -21,6 +21,7 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": "./",
     "paths": {
+      "@/cdk/carto": ["./src/cdk/carto"],
       "@/cdk/layer": ["./src/cdk/layer"],
       "@/data-source": ["./src/data-source"],
       "@/environment": ["./src/environment"],

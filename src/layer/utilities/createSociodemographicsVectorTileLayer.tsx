@@ -1,18 +1,21 @@
-import { getSociodemographicUsaSource, type SociodemographicsUsaProperties } from '@/data-source';
-import type { SociodemographicsConfig } from '../constants/sociodemographicsLayerDefaultConfig';
+import type { VectorTilesetSourceResponse } from '@/cdk/carto';
+import type { SociodemographicsUsaProperties } from '@/data-source';
 import { generateColors, getGradientColor } from '@/utilities';
 import { VectorTileLayer } from '@deck.gl/carto';
 import type { PickingInfo } from '@deck.gl/core';
 import chroma from 'chroma-js';
 import type { Feature, Geometry } from 'geojson';
+import type { SociodemographicsConfig } from '../constants/sociodemographicsLayerDefaultConfig';
 
 export interface SociodemographicsLayerProps {
   config: SociodemographicsConfig;
+  dataSource: Promise<VectorTilesetSourceResponse>;
   onHover: (info: PickingInfo<{ properties: SociodemographicsUsaProperties }>) => void;
 }
 
 export function createSociodemographicsVectorTileLayer({
   config,
+  dataSource,
   onHover,
 }: SociodemographicsLayerProps): VectorTileLayer {
   const colorPalette = generateColors(
@@ -26,7 +29,7 @@ export function createSociodemographicsVectorTileLayer({
   return new VectorTileLayer({
     id: 'sociodemographics-usa',
     pickable: true,
-    data: getSociodemographicUsaSource(),
+    data: dataSource,
     getFillColor: (feature: Feature<Geometry, SociodemographicsUsaProperties>) => {
       return getGradientColor(
         feature.properties.total_pop,

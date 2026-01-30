@@ -52,7 +52,7 @@ export function Map() {
   return (
     <Container>
       <Sidebar>
-        <RetailStoresControls onChange={setRetailStoresConfig} />
+        <RetailStoresControls onChange={setRetailStoresConfig} dataSource={retailStoresLayer.dataSource} />
         <SociodemographicsControls onChange={setSociodemographicsConfig} />
       </Sidebar>
       <DeckGL
